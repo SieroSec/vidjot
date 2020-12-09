@@ -6,7 +6,15 @@
 // npm install --save mongoose
 // vscode alt+shift+F ---> format code
 
-
+// git init
+// git add --all
+// git commit -m "Initial"
+// git remote add origin https://github.com/SieroSec/vidjot.git
+// git remote -v
+// git push origin master (or main)
+//
+//
+const express = require('express');
 const express = require('express');
 const exphbs = require('express-handlebars');
 const app = express();
