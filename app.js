@@ -18,7 +18,9 @@ require('./models/Idea');
 const Idea = mongoose.model('ideas');
 
 // Handlebars middleware
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.engine('handlebars', exphbs({
+    defaultLayout: 'main'
+}));
 app.set('view engine', 'handlebars');
 
 // Body Parser middleware
@@ -34,8 +36,6 @@ app.set('view engine', 'handlebars');
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json 
 
-
-
 // index route
 app.get('/', (req, res) => {
     const title = 'Welcome!!!';
@@ -50,31 +50,81 @@ app.get('/about', (req, res) => {
     res.render('about');
 });
 
+
+
+// Idea index page
+// npm install --save @handlebars/allow-prototype-access
+// https://mahmoudsec.blogspot.com/2019/04/handlebars-template-injection-and-rce.html
+app.get('/ideas', (req, res) => {
+    Idea.find({})
+        .lean()
+        .sort({ date: 'desc' })
+        // without lean() -->
+        // .then(ideas => {
+        //     res.render('ideas/index', {
+        //         ideas_to_hb: ideas.map(xer => xer.toJSON());
+        //     });
+        // })
+        .then(ideas => {
+            console.log(ideas);
+            res.render('ideas/index', {
+                ideas_to_handlebars: ideas
+            });
+        })
+        .catch(error => res.status(500).send(error));
+});
+
 // Add idea form
 app.get('/ideas/add', (req, res) => {
     res.render('ideas/add');
 });
+
+// app.get('/ideas/edit', (req, res) => {
+//     res.redirect('/ideas');
+// });
+
+// edit idea form
+app.get('/ideas/edit/:id', (req, res) => {
+    Idea.findOne({
+        _id: req.params.id
+    })
+    .lean()
+    .then(idea => {
+        res.render('ideas/edit', {
+            idea_to_hb: idea
+        });
+    })
+});
+
 
 // Process form
 app.post('/ideas', (req, res) => {
     let errors = [];
 
     if (!req.body.title) {
-        errors.push({text:'Please add title.'});
+        errors.push({ text: 'Please add title.' });
     }
 
     if (!req.body.details) {
-        errors.push({text:'Please add details.'});
+        errors.push({ text: 'Please add details.' });
     }
 
-    if(errors.length > 0) {
+    if (errors.length > 0) {
         res.render('ideas/add', {
             errors: errors,
             title: req.body.title,
             details: req.body.details
         });
     } else {
-        res.send('passed');
+        const newUser = {
+            title: req.body.title,
+            details: req.body.details
+        };
+        new Idea(newUser)
+            .save()
+            .then(idea => {
+                res.redirect('/ideas');
+            })
     }
     // console.log(req.body);
     // res.send('ok, ' + req.body.username);
