@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const exphbs = require('express-handlebars');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -32,6 +33,9 @@ app.set('view engine', 'handlebars');
 // Body Parser middleware
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json 
+
+// Static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // method-override middleware
 app.use(methodOverride('_method'));
@@ -76,16 +80,11 @@ app.get('/about', (req, res) => {
 });
 
 
-
-
-
-
 // app.post('/login', passport.authenticate('local'), function(req, res) {
 //     // If this function gets called, authentication was successful.
 //     // `req.user` contains the authenticated user.
 //     res.redirect('/users/' + req.user.username);
 // });
-
 
 // Use routes
 app.use('/ideas', ideas);
