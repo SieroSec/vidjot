@@ -13,12 +13,27 @@
 // git remote -v
 // git push origin master (or main)
 //
-//
-const express = require('express');
+
 const express = require('express');
 const exphbs = require('express-handlebars');
+const mongoose = require('mongoose');
 const app = express();
 const port = 5000;
+
+// connect mongoose
+mongoose.connect('mongodb://localhost:27017/vidjot-dev', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+    .then(() => console.log('MongoDB connected...'))
+    .catch(err => console.log(err));
+
+// another option
+// const db = mongoose.connection;
+// db.on('error', console.error.bind(console, 'connection error:'));
+// db.once('open', function() {
+// });
+
 
 // Handlebars middleware
 app.engine('handlebars', exphbs({
