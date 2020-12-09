@@ -2,6 +2,7 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const methodOverride = require('method-override');
 const app = express();
 const port = 5000;
 
@@ -35,6 +36,9 @@ app.set('view engine', 'handlebars');
 
 app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded
 app.use(bodyParser.json()); // parse application/json 
+
+// method-override middleware
+app.use(methodOverride('_method'));
 
 // index route
 app.get('/', (req, res) => {
@@ -97,7 +101,7 @@ app.get('/ideas/edit/:id', (req, res) => {
 });
 
 
-// Process form
+//  Process form
 app.post('/ideas', (req, res) => {
     let errors = [];
 
@@ -130,9 +134,32 @@ app.post('/ideas', (req, res) => {
     // res.send('ok, ' + req.body.username);
 });
 
+// Edit form process
+app.put('/ideas/:id', (req, res) => {
+    Idea.findOne({
+        _id: req.params.id
+    })
+    .then(idea => {
+        idea.title = req.body.title;
+        idea.details = req.body.details;
+
+        idea.save().then(idea => {
+            //res.redirect('/ideas');
+        })
+    })
+});
+
+// Delete idea
+app.delete('/ideas/:id', (req, res) => {
+    Idea.deleteOne({_id: req.params.id})
+    .then(() => {
+        res.redirect('/ideas');
+    })
+});
+
+
 
 
 app.listen(port, function () {
     console.log(`Servers started on port ${port}`);
-
 });
