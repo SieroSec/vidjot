@@ -2,7 +2,9 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const session = require('express-session');
 const methodOverride = require('method-override');
+const flash = require('connect-flash');
 const app = express();
 const port = 5000;
 
@@ -25,6 +27,7 @@ app.engine('handlebars', exphbs({
 app.set('view engine', 'handlebars');
 
 // Body Parser middleware
+//
 // application/x-www-form-urlencoded | multipart/form-data | application/json | application/xml
 // app.use(bodyParser.json()); // for parsing application/json
 // app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
@@ -39,6 +42,31 @@ app.use(bodyParser.json()); // parse application/json
 
 // method-override middleware
 app.use(methodOverride('_method'));
+
+// express-session middleware
+app.use(session({
+    secret: 'sakdjfhsad76t&^yuh34rk0&^%&#@23dvdf_',
+    resave: true,
+    saveUninitialized: true   
+}));
+
+// connect-flash middleware
+app.use(flash());
+
+// Global variables
+app.use(function (req, res, next) {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    next();
+});
+
+
+
+//////////////////////////////////////////
+///////////////// ROUTES /////////////////
+//////////////////////////////////////////
+
 
 // index route
 app.get('/', (req, res) => {
@@ -92,12 +120,12 @@ app.get('/ideas/edit/:id', (req, res) => {
     Idea.findOne({
         _id: req.params.id
     })
-    .lean()
-    .then(idea => {
-        res.render('ideas/edit', {
-            idea_to_hb: idea
-        });
-    })
+        .lean()
+        .then(idea => {
+            res.render('ideas/edit', {
+                idea_to_hb: idea
+            });
+        })
 });
 
 
@@ -127,6 +155,7 @@ app.post('/ideas', (req, res) => {
         new Idea(newUser)
             .save()
             .then(idea => {
+                req.flash('success_msg','Added successfully!');
                 res.redirect('/ideas');
             })
     }
@@ -139,22 +168,23 @@ app.put('/ideas/:id', (req, res) => {
     Idea.findOne({
         _id: req.params.id
     })
-    .then(idea => {
-        idea.title = req.body.title;
-        idea.details = req.body.details;
+        .then(idea => {
+            idea.title = req.body.title;
+            idea.details = req.body.details;
 
-        idea.save().then(idea => {
-            //res.redirect('/ideas');
+            idea.save().then(idea => {
+                //res.redirect('/ideas');
+            })
         })
-    })
 });
 
 // Delete idea
 app.delete('/ideas/:id', (req, res) => {
-    Idea.deleteOne({_id: req.params.id})
-    .then(() => {
-        res.redirect('/ideas');
-    })
+    Idea.deleteOne({ _id: req.params.id })
+        .then(() => {
+            req.flash('success_msg','Idea successfully deleted!');
+            res.redirect('/ideas');
+        })
 });
 
 

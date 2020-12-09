@@ -1,13 +1,13 @@
 {{#each ideas_to_handlebars}}
-   <div class="card card-body mb-2">
+   <div class="card card-body mb-2" style="width: 40rem;">
       <h4>{{title}}</h4>
       <p>{{details}}</p>
       <p>{{date}}</p>
-      <a class="btn btn-dark btn-block mb-2" href="/ideas/edit/{{_id}}">Edit</a>
+      <a class="btn btn-primary btn-block mb-2" href="/ideas/edit/{{_id}}">Edit</a>
       
       <form action="/ideas/{{_id}}?_method=DELETE" method="POST">
          <input type="hidden" name="_method" value="DELETE">
-         <input type="submit" class="btn btn-danger btn-block" value="Delete">
+         <input type="submit" class="btn btn-danger btn-block mb-2" value="Delete">
       </form>
       
    </div>
