@@ -9,7 +9,7 @@ const methodOverride = require('method-override');
 const flash = require('connect-flash');
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 // Load routes
 const ideas = require('./routes/ideas');
@@ -19,8 +19,11 @@ const users = require('./routes/users');
 // Passport config
 require('./config/passport')(passport);
 
+// DB config
+const db = require('./config/database');
+
 // connect mongoose
-mongoose.connect('mongodb://localhost:27017/vidjot-dev', {
+mongoose.connect(db.mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
