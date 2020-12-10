@@ -17,9 +17,25 @@ router.get('/login', (req, res) => {
    res.render('users/login');
 });
 
+// User Logout route
+router.get('/logout', (req, res) => {
+   req.logout();
+   req.flash('success_msg', 'Logged out');
+   res.redirect('/users/login');
+});
+
 // User Register route
 router.get('/register', (req, res) => {
    res.render('users/register');
+});
+
+// Login Form POST
+router.post('/login', (req, res, next) => {
+   passport.authenticate('local', {
+      successRedirect: '/ideas',
+      failureRedirect: '/users/login',
+      failureFlash: true
+   })(req, res, next);
 });
 
 // Register for POST
@@ -66,7 +82,7 @@ router.post('/register', (req, res) => {
                      newUser.save()
                         .then(user => {
                            console.log("succ: " + newUser);
-                           req.flash('succes_msg', 'You are now registered and can log in.');
+                           req.flash('success_msg', 'You are now registered and can log in.');
                            res.redirect('/users/login')
                         })
                         .catch(err => {
@@ -83,7 +99,7 @@ router.post('/register', (req, res) => {
          });
 
 
-      
+
    }
 
 });

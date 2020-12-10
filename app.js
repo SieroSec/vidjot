@@ -3,11 +3,10 @@ const path = require('path');
 const exphbs = require('express-handlebars');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const passport = require('passport');
 const session = require('express-session');
 const methodOverride = require('method-override');
 const flash = require('connect-flash');
-// const passport = require('passport'),
-// LocalStrategy = require('passport-local').Strategy;
 
 const app = express();
 const port = 5000;
@@ -15,6 +14,10 @@ const port = 5000;
 // Load routes
 const ideas = require('./routes/ideas');
 const users = require('./routes/users');
+
+
+// Passport config
+require('./config/passport')(passport);
 
 // connect mongoose
 mongoose.connect('mongodb://localhost:27017/vidjot-dev', {
@@ -47,6 +50,10 @@ app.use(session({
     saveUninitialized: true   
 }));
 
+// Passport session middleware. Must be after express-session
+app.use(passport.initialize());
+app.use(passport.session());
+
 // connect-flash middleware
 app.use(flash());
 
@@ -55,9 +62,11 @@ app.use(function (req, res, next) {
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
     res.locals.error = req.flash('error');
+    
+    // if user is logged in, then create global variable req.user or set to null.
+    res.locals.user = req.user || null
     next();
 });
-
 
 
 //////////////////////////////////////////
@@ -85,6 +94,7 @@ app.get('/about', (req, res) => {
 //     // `req.user` contains the authenticated user.
 //     res.redirect('/users/' + req.user.username);
 // });
+
 
 // Use routes
 app.use('/ideas', ideas);
